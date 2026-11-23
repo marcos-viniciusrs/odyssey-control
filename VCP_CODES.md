@@ -1,6 +1,6 @@
 # Monitor e pesquisa VCP
 
-EDID SAM produto 0x7489, nome Odyssey G5, semana 14 de 2025. Controlador MStar, firmware comunicado 0.1. A revisão comercial exata não foi identificada. Conector card1-DP-1, I²C 12 na medição. capabilities falhou com máximo de tentativas.
+EDID SAM produto 0x7489, nome Odyssey G5, semana 14 de 2025. Controlador MStar, firmware comunicado 0.1. Modelo comercial informado pelo proprietário: LS32CG552ELMZD. Software informado pelo menu: M-C5500GGZA-1008.3. A versão 0.1 acima é a resposta de identificação DDC, não a versão do software exibida no menu. Conector card1-DP-1, I²C 12 na medição. capabilities falhou com máximo de tentativas.
 
 | Código | Função | Resultado | Escrita |
 |---|---|---|---|
@@ -53,3 +53,17 @@ Fontes:
 - https://bugs.kde.org/show_bug.cgi?id=494522
 - https://www.reddit.com/r/SamsungOdyssey/comments/1g9n6t1/samsung_odyssey_g5_brightness/
 - https://www.samsung.com/us/support/troubleshoot/TSG10010570/
+
+## Pesquisa específica do LS32CG552ELMZD
+
+O proprietário informou o modelo LS32CG552ELMZD e o software M-C5500GGZA-1008.3. A Samsung identifica este produto como G55C de 32 polegadas, QHD, até 165 Hz, com uma entrada DisplayPort 1.2 e uma HDMI 2.0. A página oficial lista FreeSync, HDR10, Eye Saver, Black Equalizer, Low Input Lag e Virtual Aim Point. Isso confirma a existência dessas funções no produto, não sua controlabilidade por DDC. HDMI 2 não consta nas especificações.
+
+Em 23/11/2026, a página de suporte brasileira do modelo exato apresentava arquivo USB versão 1008.3, igual à versão informada. A página também lista Samsung Display Manager para Windows e macOS. Não foi encontrado pacote Linux nessa listagem e não foi realizada atualização.
+
+O projeto odyssey-g5-firmware-research estudou outro código regional, LS32CG552EUXUF. Os autores relatam que um arquivo 1010.0 fornecido por proprietário é uma derivação personalizada do arquivo 1008.3, com partições executáveis idênticas entre as duas amostras. Não há verificação de identidade entre essas amostras e o firmware instalado neste monitor, nem compatibilidade comprovada entre as variantes. O estudo reporta consequências arriscadas ao modificar menus de fábrica. Nenhum firmware modificado foi instalado.
+
+As leituras repetidas em 23/11/2026 retornaram 2D atual 8 de 10, 2F atual 5 de 10 e F2 atual 0 de 1. Um projeto diferente atribui esses códigos a modo de imagem, Black Equalizer e Adaptive-Sync em um G60SD. O nome de modo 8 coincide com Original na lista PC da página da Samsung, mas essa coincidência não comprova o mapeamento. A comparação com os valores do menu físico continua necessária. Nenhuma escrita em 2D, 2F ou F2 foi feita.
+
+Fontes do modelo exato: https://www.samsung.com/br/support/model/LS32CG552ELMZD/ e https://www.samsung.com/br/monitors/gaming/odyssey-g5-g55c-32-inch-165hz-curved-qhd-ls32cg552elmzd/
+Pesquisa de variante semelhante: https://github.com/c8dhjp4tyv-bit/odyssey-g5-firmware-research/blob/main/docs/FIRMWARE_ARCHITECTURE.md
+Projeto de códigos para G60SD: https://github.com/deddroid/odyssey-ctl/blob/main/docs/PROTOCOL.md
