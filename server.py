@@ -18,6 +18,7 @@ LOCK = threading.Lock()
 RATE_LOCK = threading.Lock()
 RECENT = {}
 CODES = {'brightness':'10', 'contrast':'12', 'red':'16', 'green':'18', 'blue':'1a', 'input':'60', 'power':'d6', 'temperature':'14', 'sharpness':'87'}
+EXPERIMENTAL_CODES = {'picture_mode': '2d', 'black_equalizer': '2f', 'adaptive_sync': 'f2'}
 
 def monitor():
     found = []
@@ -43,17 +44,26 @@ def ddc(args):
             raise RuntimeError((p.stderr or p.stdout).strip() or 'Falha DDC')
         return p.stdout.strip()
 
-def settings():
-    raw = ddc(['getvcp', *CODES.values(), '--brief'])
+def read_features(codes):
+    raw = ddc(['getvcp', *codes.values(), '--brief'])
     result = {}
-    reverse = {v.upper(): k for k,v in CODES.items()}
+    reverse = {v.upper(): k for k,v in codes.items()}
     for line in raw.splitlines():
         fields = line.split()
         if len(fields) >= 4 and fields[1] in reverse:
             try:
-                result[reverse[fields[1]]] = {'value':int(fields[3][1:], 16) if fields[3].startswith('x') else int(fields[3]), 'max': int(fields[4]) if len(fields)>4 else None}
+                if fields[2] == 'CNC' and len(fields) >= 7:
+                    maximum = (int(fields[3][1:], 16) << 8) | int(fields[4][1:], 16)
+                    value = (int(fields[5][1:], 16) << 8) | int(fields[6][1:], 16)
+                else:
+                    value = int(fields[3][1:], 16) if fields[3].startswith('x') else int(fields[3])
+                    maximum = int(fields[4]) if len(fields) > 4 else None
+                result[reverse[fields[1]]] = {'value': value, 'max': maximum}
             except ValueError: pass
     return result
+
+def settings():
+    return read_features(CODES)
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def allowed(self):
@@ -82,6 +92,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if path in ('/api/status','/api/monitor'):
                 connector, bus = monitor(); return self.send(200, {'model':'Samsung Odyssey G5', 'connector':connector, 'bus':bus})
             if path in ('/api/settings','/api/vcp'): return self.send(200, {'settings':settings()})
+            if path == '/api/experimental': return self.send(200, {'settings': read_features(EXPERIMENTAL_CODES), 'read_only': True})
             if path == '/api/capabilities': return self.send(200, {'info':'Leituras detectadas. Capacidades do monitor indisponíveis.'})
             return self.send(404, {'error':'Não encontrado'})
         except (OSError, RuntimeError, subprocess.TimeoutExpired) as e: return self.send(503, {'error':str(e)})
