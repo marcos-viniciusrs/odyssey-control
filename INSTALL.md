@@ -1,0 +1,5 @@
+# Instalação
+
+Execute ./install.sh na pasta do projeto em Arch Linux. São necessários python3, ddcutil, iproute2 e systemd. O script informa dependências ausentes. Ele usa porta 8766 para evitar conflito com WebPrint na porta 8765. Use ./start.sh e ./stop.sh para controlar o serviço e ./uninstall.sh para removê-lo preservando os arquivos.
+
+O endereço LAN e sub-rede são derivados da rota padrão na partida. ODYSSEY_HOST, ODYSSEY_NETWORK e ODYSSEY_PORT permitem configurar a unidade manualmente. O endereço é redetectado ao reiniciar o serviço. A instalação existente usa linger. Regras udev do ddcutil concedem acesso via uaccess durante a sessão gráfica. O usuário local foi incluído no grupo i2c para acesso persistente, e a regra padrão /usr/lib/udev/rules.d/45-i2c-tools.rules atribui os dispositivos ao grupo. O acesso via grupo foi testado em um novo processo. A sessão atual mantém os grupos antigos até nova sessão ou reinicialização. O grupo i2c concede acesso a todos os dispositivos I²C pertencentes a esse grupo. Verifique journalctl --user -u odyssey-control.
